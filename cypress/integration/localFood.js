@@ -3,7 +3,7 @@ describe('Test firestore', () => {
   const mockAge = 8;
 
   beforeEach(() => {
-    cy.visit('http://localhost:3000');
+    cy.visit('/');
   });
 
   it('read/write test', () => {
