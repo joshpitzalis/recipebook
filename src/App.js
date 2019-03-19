@@ -1,6 +1,21 @@
-import { Box, Button, Collapsible, Form, FormField, Grommet, Heading, Layer, ResponsiveContext, TextArea, TextInput } from 'grommet';
+import {
+  Box,
+  Button,
+  Collapsible,
+  Form,
+  FormField,
+  Grommet,
+  Heading,
+  Layer,
+  ResponsiveContext,
+  TextArea,
+  TextInput
+} from 'grommet';
 import { Edit, FormClose, Notification } from 'grommet-icons';
 import React, { Component } from 'react';
+import initFirebase from './firebase';
+
+const fbInstance = initFirebase();
 
 const theme = {
   global: {
@@ -17,10 +32,34 @@ const theme = {
 
 class App extends Component {
   state = {
-    showSidebar: false
+    showSidebar: false,
+    loading: false
   };
+
+  componentDidMount() {
+    this.setState({ loading: true });
+    fbInstance
+      .database()
+      .ref('projects')
+      .limitToFirst(10)
+      .on(
+        'value',
+        snap => {
+          this.setState({
+            projects: snap.val(),
+            loading: false
+          });
+        },
+        err => {
+          this.setState({
+            loading: false,
+            error: err
+          });
+        }
+      );
+  }
   render() {
-    const { showSidebar } = this.state;
+    const { loading, projects, showSidebar } = this.state;
     return (
       <Grommet theme={theme} full>
         <ResponsiveContext.Consumer>
@@ -112,13 +151,13 @@ export const RecipeCreator = ({}) => {
     { ingredient: '', value: '' }
   ]);
 
-  // notes on dynamic field updates           
+  // notes on dynamic field updates
   // https://itnext.io/building-a-dynamic-controlled-form-in-react-together-794a44ee552c
   const update = (ingredients, index, type, value) => {
-    let newIngredients = [...ingredients]
-    newIngredients[index][type] = value
-    setIngredients(newIngredients)
-  }
+    let newIngredients = [...ingredients];
+    newIngredients[index][type] = value;
+    setIngredients(newIngredients);
+  };
   return (
     <Form>
       <FormField
@@ -134,28 +173,36 @@ export const RecipeCreator = ({}) => {
           onChange={e => setDescription(e.target.value)}
         />
       </FormField>
-     
+
       {ingredients.map((val, idx) => {
         return (
           <Box key={idx} pad={{ vertical: 'small' }} flex>
-            <TextInput placeholder="value" width="xsmall" value={val.value} onChange={e => 
-              update(ingredients, idx, 'value', e.target.value)} />
-            <TextInput placeholder="ingredient" value={val.ingredient} 
-            onChange={e => 
-              update(ingredients, idx, 'ingredient', e.target.value)}/>
+            <TextInput
+              placeholder="value"
+              width="xsmall"
+              value={val.value}
+              onChange={e => update(ingredients, idx, 'value', e.target.value)}
+            />
+            <TextInput
+              placeholder="ingredient"
+              value={val.ingredient}
+              onChange={e =>
+                update(ingredients, idx, 'ingredient', e.target.value)
+              }
+            />
           </Box>
         );
       })}
-  
-       <Button
+
+      <Button
         icon={<Edit />}
         label="Add New Ingredient"
         onClick={() =>
           setIngredients([...ingredients, { ingredient: '', value: '' }])
         }
       />
-       <div className='pt4'>
-      <Button type="submit" primary label="Submit" />
+      <div className="pt4">
+        <Button type="submit" primary label="Submit" />
       </div>
     </Form>
   );
