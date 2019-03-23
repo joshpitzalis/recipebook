@@ -4,8 +4,10 @@
   "private": true,
   "dependencies": {
     "antd": "^3.14.1",
+    "firebase": "^5.9.1",
     "grommet": "^2.5.5",
     "grommet-icons": "^4.2.0",
+    "immer": "^2.1.4",
     "react": "^16.8.4",
     "react-automata": "^4.0.4",
     "react-dom": "^16.8.4",

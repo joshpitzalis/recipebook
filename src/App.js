@@ -1,6 +1,10 @@
-import { Box, Button, Collapsible, Form, FormField, Grommet, Heading, Layer, ResponsiveContext, TextArea, TextInput } from 'grommet';
-import { Edit, FormClose, Notification } from 'grommet-icons';
+import { Box, Button, Collapsible, Grommet, Heading, Layer, ResponsiveContext, Tab, Tabs } from 'grommet';
+import { FormClose, Add } from 'grommet-icons';
 import React, { Component } from 'react';
+import { RecipeCreator } from './RecipeCreator';
+import { AppBar } from './AppBar';
+import { RecipeList } from "./RecipeList";
+import Menu from "./Menu";
 
 const theme = {
   global: {
@@ -31,7 +35,7 @@ class App extends Component {
                   Recipe Book
                 </Heading>
                 <Button
-                  icon={<Notification />}
+                  icon={<Add />}
                   onClick={() =>
                     this.setState(prevState => ({
                       showSidebar: !prevState.showSidebar
@@ -39,10 +43,34 @@ class App extends Component {
                   }
                 />
               </AppBar>
-              <Box direction="row" flex overflow={{ horizontal: 'hidden' }}>
-                <Box flex align="center" justify="center">
-                  app body
-                </Box>
+              <Box direction="row" flex overflow={{ horizontal: 'hidden' }} >
+                <Tabs fill
+                  pad={{
+                    'vertical': 'medium'
+                  }}
+                >
+
+                  <Tab title="Menu">
+                    <Box flex align="center" >
+                      <Menu />
+                    </Box>
+                  </Tab>
+
+
+                  <Tab title="Recipes">
+                    <RecipeList />
+                  </Tab>
+
+
+
+                  <Tab title="Shopping">
+                    <Box flex align="center" >
+                      <RecipeCreator />
+                    </Box>
+                  </Tab>
+
+
+                </Tabs>
                 {!showSidebar || size !== 'small' ? (
                   <Collapsible direction="horizontal" open={showSidebar}>
                     <Box
@@ -57,29 +85,29 @@ class App extends Component {
                     </Box>
                   </Collapsible>
                 ) : (
-                  <Layer>
-                    <Box
-                      background="light-2"
-                      tag="header"
-                      justify="end"
-                      align="center"
-                      direction="row"
-                    >
-                      <Button
-                        icon={<FormClose />}
-                        onClick={() => this.setState({ showSidebar: false })}
-                      />
+                    <Layer>
+                      <Box
+                        background="light-2"
+                        tag="header"
+                        justify="end"
+                        align="center"
+                        direction="row"
+                      >
+                        <Button
+                          icon={<FormClose />}
+                          onClick={() => this.setState({ showSidebar: false })}
+                        />
+                      </Box>
+                      <Box
+                        fill
+                        background="light-2"
+                        align="center"
+                        justify="center"
+                      >
+                        sidebar
                     </Box>
-                    <Box
-                      fill
-                      background="light-2"
-                      align="center"
-                      justify="center"
-                    >
-                      sidebar
-                    </Box>
-                  </Layer>
-                )}
+                    </Layer>
+                  )}
               </Box>
             </Box>
           )}
@@ -89,74 +117,4 @@ class App extends Component {
   }
 }
 
-const AppBar = props => (
-  <Box
-    tag="header"
-    direction="row"
-    align="center"
-    justify="between"
-    background="brand"
-    pad={{ left: 'medium', right: 'small', vertical: 'large' }}
-    elevation="medium"
-    style={{ zIndex: '1' }}
-    {...props}
-  />
-);
-
 export default App;
-
-export const RecipeCreator = ({}) => {
-  const [name, setName] = React.useState('');
-  const [description, setDescription] = React.useState('');
-  const [ingredients, setIngredients] = React.useState([
-    { ingredient: '', value: '' }
-  ]);
-
-  // notes on dynamic field updates           
-  // https://itnext.io/building-a-dynamic-controlled-form-in-react-together-794a44ee552c
-  const update = (ingredients, index, type, value) => {
-    let newIngredients = [...ingredients]
-    newIngredients[index][type] = value
-    setIngredients(newIngredients)
-  }
-  return (
-    <Form>
-      <FormField
-        name="name"
-        label="Name"
-        value={name}
-        onChange={e => setName(e.target.value)}
-      />
-      <FormField label="description">
-        <TextArea
-          name="description"
-          value={description}
-          onChange={e => setDescription(e.target.value)}
-        />
-      </FormField>
-     
-      {ingredients.map((val, idx) => {
-        return (
-          <Box key={idx} pad={{ vertical: 'small' }} flex>
-            <TextInput placeholder="value" width="xsmall" value={val.value} onChange={e => 
-              update(ingredients, idx, 'value', e.target.value)} />
-            <TextInput placeholder="ingredient" value={val.ingredient} 
-            onChange={e => 
-              update(ingredients, idx, 'ingredient', e.target.value)}/>
-          </Box>
-        );
-      })}
-  
-       <Button
-        icon={<Edit />}
-        label="Add New Ingredient"
-        onClick={() =>
-          setIngredients([...ingredients, { ingredient: '', value: '' }])
-        }
-      />
-       <div className='pt4'>
-      <Button type="submit" primary label="Submit" />
-      </div>
-    </Form>
-  );
-};
